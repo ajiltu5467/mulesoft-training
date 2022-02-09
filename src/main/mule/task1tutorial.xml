@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="77d3df7e-1f27-49e1-865c-ffaaacb5c4ad" >
+		<salesforce:basic-connection username="ajil.tu@mindful-narwhal-n0evym.com" password="loader@1234" securityToken="9gAn3hOBGbG6ytPmhFpNXossO" />
+	</salesforce:sfdc-config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3db9258d-9c52-4fc1-87dc-6489dbf1ebbe" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="task1tutorialFlow" doc:id="99867018-0772-42d5-a5a9-505f6f39d6db" >
+		<http:listener doc:name="Listener" doc:id="c5636058-f0c3-41a9-933a-21d9ee7c55e7" path="/accounts" allowedMethods="GET" config-ref="HTTP_Listener_config">
+			<ee:repeatable-file-store-stream inMemorySize="1024" />
+		</http:listener>
+		<set-variable value="#[attributes.queryParams.billingCity default '']" doc:name="Set Variable" doc:id="32065bd3-47fb-49db-b51e-533948441956" variableName="billingCityVar"/>
+		<choice doc:name="Choice" doc:id="853b3320-2fc6-4e8a-bdac-50c90445d72f" >
+			<when expression="#[vars.billingCityVar != '']">
+				<salesforce:query doc:name="Query" doc:id="8046d3b4-0b94-4c28-8121-73869fe4f64b" config-ref="Salesforce_Config">
+					<salesforce:salesforce-query ><![CDATA[select Name, ID, BillingCountry, BillingCity, BillingState, BillingStreet, BillingPostalCode from Account where BillingCity = ':billingCity']]></salesforce:salesforce-query>
+					<salesforce:parameters ><![CDATA[#[billlingCity : vars.billingCityVar]]]></salesforce:parameters>
+				</salesforce:query>
+			</when>
+			<otherwise >
+				<salesforce:query-all doc:name="Query all" doc:id="3e6d48ca-fa17-4e71-b6f7-df19216bc5a9" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query><![CDATA[select Name, ID, BillingCountry, BillingCity, BillingState, BillingStreet, BillingPostalCode from Account]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="128d123a-6809-408a-ae42-ea53ad69c2ed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
