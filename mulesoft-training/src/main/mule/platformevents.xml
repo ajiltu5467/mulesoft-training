@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="f0dff6a4-4d5f-464d-b9c4-8b6eca94f02b" >
+		<salesforce:basic-connection username="yashwantv@y.com" password="Spring5@2" securityToken="bdynahvlsArrrc98wFBLyWHsX" />
+	</salesforce:sfdc-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="377cfa3a-25fb-4ea2-bc4d-a0785c9fd9cf" />
+	<flow name="platformeventsFlow" doc:id="7537ce11-8a57-407a-9d69-8d2edb53ec77" >
+		<salesforce:subscribe-channel-listener doc:name="Subscribe channel listener" doc:id="f63709bf-41d9-4a71-8a40-5b161867b9af" config-ref="Salesforce_Config" streamingChannel="/event/PAccount__e"/>
+		<logger level="INFO" doc:name="Logger" doc:id="588f8387-00fe-41c8-ba28-a387aca51793" message="#[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="0d7439a1-ba02-4f86-882d-6dfe8d9f5d69" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.data.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<validation:is-not-null doc:name="Is not null" doc:id="2de7dbda-12d4-4890-b8e5-c61a12d4075e" value="#[payload.Id__c]" message="Record Id can not be null" config-ref="Validation_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3a2d2790-2c53-46c9-8c89-bada44e7a9e7" message="#[payload]"/>
+
+			</flow>
+</mule>

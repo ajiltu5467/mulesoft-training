@@ -4,7 +4,4 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="mulesoft-trainingFlow" doc:id="9ca43025-4663-4ac5-a948-38dab4aa2845" >
-		<http:listener doc:name="Listener" doc:id="730106a1-b846-427d-812b-68e3cba23727" />
-	</flow>
 </mule>
